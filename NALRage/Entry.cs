@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
 using System.Timers;
 
 [assembly: Plugin("NoArtifactLights", Author = "RelaperCrystal", PrefersSingleInstance = true)]
@@ -21,7 +22,8 @@ namespace NALRage
     public static class Entry
     {
         private static Configuration config;
-        private static Timer timer;
+        private static GameFiber process;
+        private static System.Timers.Timer timer;
         private static bool enabled = true;
 
         [ConsoleCommand(Name = "ReloadConfigs", Description = "Reloads configuration of NAL.")]
@@ -95,14 +97,15 @@ namespace NALRage
                 GameContentUtils.SetRelationship(Difficulty.Initial);
                 NativeFunction.Natives.x1268615ACE24D504(true);
                 Game.LogTrivial("Setting up menus...");
-                GameFiber menu = new GameFiber(new System.Threading.ThreadStart(MenuManager.FiberInit));
+                GameFiber menu = new GameFiber(new ThreadStart(MenuManager.FiberInit));
                 menu.Start();
-                GameFiber process = new GameFiber(new System.Threading.ThreadStart(ProcessEvents));
+                GameFiber process = new GameFiber(new ThreadStart(ProcessEvents));
                 GameFiber.Sleep(5000);
                 Game.FadeScreenIn(1000);
                 GameFiber.Sleep(1000);
                 process.Start();
-                timer = new Timer(100);
+                Entry.process = process;
+                timer = new System.Timers.Timer(100);
                 timer.Elapsed += Timer_Elapsed;
                 timer.Start();
                 Game.LogTrivial("Done!");
@@ -118,7 +121,7 @@ namespace NALRage
 
         private static void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (!enabled) enabled = true;
+            process.Wake();
         }
 
         public static void ProcessEvents()
@@ -246,6 +249,7 @@ namespace NALRage
                     Game.LogTrivial("Cleaning killed ids");
                     killedIds.Clear();
                 }
+                GameFiber.Hibernate();
             }
         }
     }

@@ -54,6 +54,7 @@
     <Compile Include="Engine\Menus\MenuManager.cs" />
     <Compile Include="Engine\Modification\API\Events\Event.cs" />
     <Compile Include="Engine\Modification\API\Events\EventManager.cs" />
+    <Compile Include="Engine\Modification\GameFibers\HungryManager.cs" />
     <Compile Include="Engine\SaveUtils.cs" />
     <Compile Include="Engine\WeaponShopUtils.cs" />
     <Compile Include="Entities\Difficulty.cs" />
