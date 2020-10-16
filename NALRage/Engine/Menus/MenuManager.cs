@@ -60,6 +60,8 @@ namespace NALRage.Engine.Menus
             itemClassic = new UIMenuItem("Classic", "The classic NAL load model.");
             itemCop.Activated += ItemCop_Activated;
             itemClassic.Activated += ItemClassic_Activated;
+            modelsMenu.AddItem(itemClassic);
+            modelsMenu.AddItem(itemCop);
 
             mainMenu.BindMenuToItem(modelsMenu, itemAppearance);
             mainMenu.RefreshIndex();
