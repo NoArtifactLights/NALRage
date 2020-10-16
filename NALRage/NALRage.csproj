@@ -54,6 +54,9 @@
     <Compile Include="Engine\Menus\MenuManager.cs" />
     <Compile Include="Engine\Modification\API\Events\Event.cs" />
     <Compile Include="Engine\Modification\API\Events\EventManager.cs" />
+    <Compile Include="Engine\Modification\API\Logger.cs" />
+    <Compile Include="Engine\Modification\CrashReporter.cs" />
+    <Compile Include="Engine\Modification\GameFibers\GameManager.cs" />
     <Compile Include="Engine\Modification\GameFibers\HungryManager.cs" />
     <Compile Include="Engine\SaveUtils.cs" />
     <Compile Include="Engine\WeaponShopUtils.cs" />
@@ -67,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Engine\Interfaces\" />
+    <Folder Include="Engine\Modification\API\Events\Integrated\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">

@@ -1,19 +1,20 @@
-﻿using NALRage.Engine;
+﻿// Copyright (C) Hot Workshop & contributors 2020.
+// Licensed under GNU General Public License version 3.
+
+using NALRage.Engine;
 using NALRage.Engine.Menus;
+using NALRage.Engine.Modification;
+using NALRage.Engine.Modification.GameFibers;
 using NALRage.Entities;
 using NALRage.Entities.Serialization;
 using Newtonsoft.Json;
 using Rage;
 using Rage.Attributes;
 using Rage.Native;
-using RAGENativeUI.Elements;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
-using System.Timers;
 
 [assembly: Plugin("NoArtifactLights", Author = "RelaperCrystal", PrefersSingleInstance = true)]
 
@@ -21,7 +22,7 @@ namespace NALRage
 {
     public static class Entry
     {
-        private static Configuration config;
+        internal static Configuration config;
         private static GameFiber process;
         private static System.Timers.Timer timer;
         private static bool enabled = true;
@@ -99,15 +100,9 @@ namespace NALRage
                 Game.LogTrivial("Setting up menus...");
                 GameFiber menu = new GameFiber(new ThreadStart(MenuManager.FiberInit));
                 menu.Start();
-                GameFiber process = new GameFiber(new ThreadStart(ProcessEvents));
+                process = GameFiber.ExecuteNewFor(new ThreadStart(GameManager.ProcessEach100), 100);
                 GameFiber.Sleep(5000);
                 Game.FadeScreenIn(1000);
-                GameFiber.Sleep(1000);
-                process.Start();
-                Entry.process = process;
-                timer = new System.Timers.Timer(100);
-                timer.Elapsed += Timer_Elapsed;
-                timer.Start();
                 Game.LogTrivial("Done!");
                 Game.DisplayHelp("Welcome to NoArtifactLights!");
                 Game.DisplayNotification("You have currently playing the ~h~RAGE Plugin Hook~s~ version.");
@@ -115,15 +110,15 @@ namespace NALRage
             }
             catch(Exception ex)
             {
-                Game.FadeScreenIn(100);
+                CrashReporter cr = new CrashReporter(ex);
+                cr.ReportAndCrashPlugin();
             }
         }
 
-        private static void Timer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            process.Wake();
-        }
-
+        /// <summary>
+        /// Consider use <see cref="GameManager.ProcessEach100()"/> as of this is no longer used.
+        /// </summary>
+        [Obsolete]
         public static void ProcessEvents()
         {
             List<uint> ids = new List<uint>();
@@ -186,15 +181,15 @@ namespace NALRage
                                 break;
                         }
                     }
-                if (!enabled) // we don't want our while runs until 100 interval
-                {
-                    continue;
-                }
-                else
-                {
-                }
-                enabled = false;
-                GameFiber.Sleep(1);
+                //if (!enabled) // we don't want our while runs until 100 interval
+                //{
+                //    continue;
+                //}
+                //else
+                //{
+                //}
+                //enabled = false;
+                //GameFiber.Sleep(1);
                 foreach (Ped p2 in peds)
                 {
                     if (!p2.Exists()) continue;
@@ -204,14 +199,8 @@ namespace NALRage
                         
                     }
                     int var = new Random().Next(config.EventMinimal, config.EventMax);
-#if DEBUG
-                    
-#endif
-
                     if (var == config.EventRequirement && !armedIds.Contains(p.Handle.Index) && !(p.Model.Name == "s_m_y_cop_01" || p.Model.Name == "s_f_y_cop_01") && !p.IsPlayer)
                     {
-#if DEBUG
-#endif
                         armedIds.Add(p.Handle.Index);
                         p.EquipWeapon();
 #if DEBUG
@@ -249,7 +238,7 @@ namespace NALRage
                     Game.LogTrivial("Cleaning killed ids");
                     killedIds.Clear();
                 }
-                GameFiber.Hibernate();
+                GameFiber.Sleep(100);
             }
         }
     }
