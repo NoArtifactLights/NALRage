@@ -3,6 +3,7 @@ using Rage.Native;
 using RAGENativeUI;
 using RAGENativeUI.Elements;
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace NALRage.Engine.Menus
@@ -16,6 +17,7 @@ namespace NALRage.Engine.Menus
         private static UIMenuItem itemCallCops;
         private static UIMenuItem itemDifficulty;
         private static UIMenuItem itemKills;
+        private static UIMenuItem itemAppearance;
         private static UIMenuCheckboxItem itemLights;
         private static UIMenuItem itemCash;
 
@@ -23,6 +25,10 @@ namespace NALRage.Engine.Menus
         private static UIMenuItem itemPistol;
         private static UIMenuItem itemPumpShotgun;
         private static UIMenuItem itemBodyArmor;
+
+        private static UIMenu modelsMenu;
+        private static UIMenuItem itemCop;
+        private static UIMenuItem itemClassic;
         private static bool noticed;
 
         public static void FiberInit()
@@ -34,6 +40,7 @@ namespace NALRage.Engine.Menus
             itemCallCops = new UIMenuItem("Call the Cops", "Call for police services.");
             itemDifficulty = new UIMenuItem("Difficulty", "Views the current difficulty.");
             itemKills = new UIMenuItem("Kills", "Views the current kill count.");
+            itemAppearance = new UIMenuItem("Appearance", "Changes the model of the current player.");
             itemCash = new UIMenuItem("Cash", "Views the current cash amount.");
             mainMenu.AddItem(itemLights);
             mainMenu.AddItem(itemSave);
@@ -41,11 +48,20 @@ namespace NALRage.Engine.Menus
             mainMenu.AddItem(itemCallCops);
             mainMenu.AddItem(itemDifficulty);
             mainMenu.AddItem(itemKills);
+            mainMenu.AddItem(itemAppearance);
             mainMenu.AddItem(itemCash);
             itemLights.CheckboxEvent += ItemLights_CheckboxEvent;
             itemSave.Activated += ItemSave_Activated;
             itemLoad.Activated += ItemLoad_Activated;
             itemCallCops.Activated += ItemCallCops_Activated;
+
+            modelsMenu = new UIMenu("NAL", "Appearence Menu");
+            itemCop = new UIMenuItem("Male Cop", "The male LSPD officer.");
+            itemClassic = new UIMenuItem("Classic", "The classic NAL load model.");
+            itemCop.Activated += ItemCop_Activated;
+            itemClassic.Activated += ItemClassic_Activated;
+
+            mainMenu.BindMenuToItem(modelsMenu, itemAppearance);
             mainMenu.RefreshIndex();
             Pool.Add(mainMenu);
             buyMenu = new UIMenu("Ammu-Nation", "Weapon Shop");
@@ -67,8 +83,8 @@ namespace NALRage.Engine.Menus
                 if(!noticed)
                 {
                     noticed = true;
-                    Game.DisplayNotification("NoArtifactLights ~b~has been loaded~s~. ~g~Enjoy!~s~");
-                    Game.LogTrivial("MenuManager thread has entered loop. Enjoy!");
+                    //Game.DisplayNotification("NoArtifactLights ~b~has been loaded~s~. ~g~Enjoy!~s~");
+                    //Game.LogTrivial("MenuManager thread has entered loop. Enjoy!");
                 }
                 if(!buyMenu.Visible)
                 {
@@ -90,6 +106,33 @@ namespace NALRage.Engine.Menus
                     Game.DisplayHelp("Press ~INPUT_CONTEXT~ to buy weapon.");
                 }
             }
+        }
+
+        private static void ItemClassic_Activated(UIMenu sender, UIMenuItem selectedItem)
+        {
+            ChangeModel("a_m_m_bevhills_02", selectedItem);
+        }
+
+        private static void ItemCop_Activated(UIMenu sender, UIMenuItem selectedItem)
+        {
+            ChangeModel("s_m_y_cop_01", selectedItem);            
+        }
+
+        private static void ChangeModel(string model, UIMenuItem origin)
+        {
+            List<WeaponDescriptor> weapons = new List<WeaponDescriptor>();
+            foreach(WeaponDescriptor wd in Game.LocalPlayer.Character.Inventory.Weapons)
+            {
+                weapons.Add(wd);
+            }
+            Game.LocalPlayer.Model = model;
+            foreach(WeaponDescriptor wd in weapons)
+            {
+                Game.LocalPlayer.Character.Inventory.Weapons.Add(wd);
+            }
+            itemClassic.Enabled = true;
+            itemCop.Enabled = true;
+            origin.Enabled = false;
         }
 
         private static void ItemBodyArmor_Activated(UIMenu sender, UIMenuItem selectedItem) => WeaponShopUtils.SellArmor(70, 350);
