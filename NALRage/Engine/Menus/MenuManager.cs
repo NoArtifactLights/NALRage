@@ -64,6 +64,7 @@ namespace NALRage.Engine.Menus
             mainMenu.BindMenuToItem(modelsMenu, itemAppearance);
             mainMenu.RefreshIndex();
             Pool.Add(mainMenu);
+            Pool.Add(modelsMenu);
             buyMenu = new UIMenu("Ammu-Nation", "Weapon Shop");
             itemPistol = WeaponShopUtils.GenerateWeaponSellerItem("Pistol Ammo x100", "A personal defense weapon that is easy to carry, but has limited clip.", 1000);
             itemPumpShotgun = WeaponShopUtils.GenerateWeaponSellerItem("Pump Shotgun Ammo x50", "A weapon has short range but has strong power when enemy comes close.", 2000);
